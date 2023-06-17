@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Booking Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f7f7f7;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .plane-info {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .success-message {
+            text-align: center;
+            font-weight: bold;
+            color: #4caf50;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Booking Page</title>
+    <style>
+        /* CSS styles here */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Booking Page</h1>
+        <div class="plane-info">
+            <h2>Plane Details:</h2>
+            <p><strong>Source:</strong> {{ flight.source }}</p>
+            <p><strong>Destination:</strong> {{ flight.destination }}</p>
+            <p><strong>Date of Journey:</strong> {{ flight.date_of_journey }}</p>
+            <p><strong>Company:</strong> {{ flight.company_name }}</p>
+        </div>
+        {% if success_message %}
+        <p class="success-message">{{ success_message }}</p>
+        {% endif %}
+        <form method="POST" action="booking_history"> 
+            {% csrf_token %}
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <label for="phone">Phone:</label>
+            <input type="text" id="phone" name="phone" required>
+            <input type="hidden" name="flight_id" value="{{ ft.id }}">
+            <button type="submit"><a href="/">Confirm Booking</a></button>
+        </form>
+    </div>
+</body>
+</html>
+
+</html>
