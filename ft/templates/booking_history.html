@@ -18,9 +18,9 @@
         <nav class="navbar">
             <div id="nav-close" class="fas fa-times"></div>
             <a href="/">Home</a>
-            <a href="planes">Booking</a>
-            <a href="booking/history">History</a>
-            <a href="logout">Logout</a>
+            <a href="{% url 'displayplanes' %}">Booking</a>
+            <a href="{% url 'booking_history' %}">History</a>
+            <a href="{% url 'logout' %}">Logout</a>
         </nav>
     
         <div class="icons">

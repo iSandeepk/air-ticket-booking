@@ -14,7 +14,7 @@
         .container {
             position: relative;
             height: 100vh;
-            background: url("static/img/background.jpg") no-repeat center center fixed;
+            background: url("static/img/home-bg-3.jpg") no-repeat center center fixed;
             background-size: cover;
         }
 
@@ -93,6 +93,27 @@
         .register-button a:hover {
             background-color: #219150;
         }
+        .admin-button {
+            position: absolute;
+            top: 20px;
+            right: 130px;
+        }
+
+        .admin-button a {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            color: #fff;
+            background-color: #f55c49;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .admin-button a:hover {
+            background-color: #f55c49;
+        }
     </style>
 </head>
 <body>
@@ -102,8 +123,8 @@
             <form method="POST" action="login">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required>
+                    <label for="username">Username or Email</label>
+                    <input type="text" id="username" name="username"  placeholder = "Username or Email"required>
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
@@ -111,9 +132,15 @@
                 </div>
                 <button type="submit" class="btn-login">Login</button>
             </form>
+            {% for message in messages %}
+            <h5 style="color: red;">{{message}}</h5>    
+            {% endfor %}
         </div>
         <div class="register-button">
             <a href="register">Register</a>
+        </div>
+        <div class="admin-button">
+            <a href="login">Admin</a>
         </div>
     </div>
 </body>

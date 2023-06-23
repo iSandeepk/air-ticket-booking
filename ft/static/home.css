@@ -116,6 +116,10 @@ section {
   color: #10221b;
 }
 
+.header .logo a span{
+  font-size: 1rem;
+}
+
 .header .icons a:hover,
 .header .icons div:hover {
   color: #219150;

@@ -6,7 +6,7 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            /* padding: 20px; */
             background-color: #f7f7f7;
         }
 
@@ -17,6 +17,7 @@
             padding: 20px;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-top: 3%;
         }
 
         h1 {
@@ -31,6 +32,7 @@
         label {
             display: block;
             margin-bottom: 10px;
+            margin-top: 1%;
         }
 
         input[type="text"],
@@ -41,15 +43,18 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
+            margin-bottom: 1%;
         }
 
         button {
+            margin-top: 2%;
             padding: 10px 20px;
             background-color: #4caf50;
             color: #fff;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            
         }
 
         button:hover {
@@ -64,14 +69,6 @@
         }
     </style>
 </head>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Booking Page</title>
-    <style>
-        /* CSS styles here */
-    </style>
-</head>
 <body>
     <div class="container">
         <h1>Booking Page</h1>
@@ -80,12 +77,12 @@
             <p><strong>Source:</strong> {{ flight.source }}</p>
             <p><strong>Destination:</strong> {{ flight.destination }}</p>
             <p><strong>Date of Journey:</strong> {{ flight.date_of_journey }}</p>
-            <p><strong>Company:</strong> {{ flight.company_name }}</p>
+            <p><strong>Airline:</strong> {{ flight.company_name }}</p>
         </div>
         {% if success_message %}
         <p class="success-message">{{ success_message }}</p>
         {% endif %}
-        <form method="POST" action="booking_history"> 
+        <form method="POST" action="{% url 'booking_history' %}">
             {% csrf_token %}
             <label for="name">Name:</label>
             <input type="text" id="name" name="name" required>
@@ -93,11 +90,11 @@
             <input type="email" id="email" name="email" required>
             <label for="phone">Phone:</label>
             <input type="text" id="phone" name="phone" required>
-            <input type="hidden" name="flight_id" value="{{ ft.id }}">
-            <button type="submit"><a href="/">Confirm Booking</a></button>
+            <input type="hidden" name="flight_id" value="{{ flight.id }}">
+            <button type="submit">Confirm Booking</button>
         </form>
     </div>
 </body>
-</html>
+
 
 </html>

@@ -1,6 +1,10 @@
+
+from django.contrib.auth.models import User
 from django.db import models
 import random
 import datetime
+from django.utils import timezone
+
 class ft(models.Model):
     date_of_journey = models.DateField()
     source = models.CharField(max_length=100)
@@ -14,7 +18,7 @@ class ft(models.Model):
 
     class Meta:
         verbose_name_plural = "fts"
-# Create your models here.
+
 
 company_names = ['Indigo', 'Air India', 'SpiceJet', 'Vistara', 'GoAir']
 cities_in_india = ['Mumbai', 'Delhi', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad', 'Jaipur', 'Ahmedabad', 'Pune', 'Lucknow']
@@ -22,7 +26,6 @@ cities_in_india = ['Mumbai', 'Delhi', 'Kolkata', 'Chennai', 'Bengaluru', 'Hydera
 sample_ft = []
 start_date = datetime.date.today() + datetime.timedelta(days=1)
 
-# Generate sample planes with different dates and random source/destination within India
 for i in range(20):
     date_of_journey = start_date + datetime.timedelta(days=i)
     source = random.choice(cities_in_india)
@@ -43,14 +46,19 @@ for i in range(20):
     sample_ft.append(ft_instance)
 
 
-from django.contrib.auth.models import User
-
 class Booking(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    plane = models.ForeignKey(ft, on_delete=models.CASCADE)
-    booking_date = models.DateField(auto_now_add=True)
-    # other booking fields
+    company_name = models.CharField(max_length=100, default='')
+    source = models.CharField(max_length=100)
+    destination = models.CharField(max_length=100)
+    date_of_journey = models.DateField(default=timezone.now)
+
+
 
     def __str__(self):
-        return f"{self.user.username} - {self.plane}"
+        return f"{self.user.username} - {self.company_name} - {self.source} to {self.destination} ({self.date_of_journey})"
+    
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE) #one to one relation
+    Firstname = models.CharField(max_length=100)
 

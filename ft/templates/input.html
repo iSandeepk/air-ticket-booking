@@ -1,15 +1,141 @@
 {% load static %}
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Search</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-image: url("static/img/background.jpg") no-repeat center center fixed;
+            position: relative;
+            height: 100vh;
+            background: url("static/img/home-bg-3.jpg");
             background-size: cover;
+            font-family: Arial, sans-serif;
+            background-size: cover;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            outline: none;
+            text-decoration: none;
+            text-transform: capitalize;
+            -webkit-transition: .2s linear;
+            transition: .2s linear;
+        }
+
+        html {
+            font-size: 62.5%;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            scroll-padding-top: 5rem;
+        }
+
+        html::-webkit-scrollbar {
+            width: 1rem;
+        }
+
+        html::-webkit-scrollbar-track {
+            background: #fff;
+        }
+
+        html::-webkit-scrollbar-thumb {
+            background: #10221b;
+        }
+
+        section {
+            padding: 5rem 9%;
+        }
+
+        .btn {
+            margin-top: 1rem;
+            display: inline-block;
+            border: 0.2rem solid #10221b;
+            color: #10221b;
+            cursor: pointer;
+            background: none;
+            font-size: 1.7rem;
+            padding: 1rem 3rem;
+        }
+
+        .btn:hover {
+            background: #10221b;
+            color: #fff;
+        }
+
+        .heading {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            font-size: 4rem;
+            color: #10221b;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 2rem 9%;
+            z-index: 1000;
+            display: center;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            align-items: center;
+        }
+
+        .header.active {
+            background: #fff;
+            -webkit-box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+
+        .header .logo {
+            margin-right: auto;
+            font-size: 2.5rem;
+            color: #10221b;
+            font-weight: bolder;
+        }
+
+        .header .logo i {
+            color: #219150;
+        }
+
+        .header .navbar a {
+            margin-left: 5rem;
+            font-size: 1.7rem;
+            color: #10221b;
+        }
+
+        .header .navbar a:hover {
+            color: #219150;
+        }
+
+        .header .navbar #nav-close {
+            font-size: 5rem;
+            cursor: pointer;
+            color: #10221b;
+            display: none;
+        }
+
+        .header .icons a,
+        .header .icons div {
+            font-size: 2.5rem;
+            margin-left: 2rem;
+            cursor: pointer;
+            color: #10221b;
+        }
+
+        .header .icons a:hover,
+        .header .icons div:hover {
+            color: #219150;
+        }
+
+        .header #menu-btn {
+            display: none;
         }
 
         .container {
@@ -17,23 +143,33 @@
             margin: 0 auto;
             background-color: #fff;
             padding: 20px;
+            margin-top: 10%;
             border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
             text-align: center;
-            margin-bottom: 20px;
+            margin-top: 2%;
+            /* margin-bottom: 10px; */
         }
 
         form {
-            margin: 10%;
+            margin: 5% 10% 10% 10%;
         }
 
         label {
             display: block;
-            margin-bottom: 5pxpx;
+            margin-bottom: 5px;
+            /* padding: 2%; */
+            padding: 2% 0%;
+            font-size: 15px;
+        }
+
+        input[type="date"] {
             padding: 2%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
 
         input[type="text"],
@@ -75,7 +211,8 @@
         .book-button {
             text-align: center;
             margin-top: 10px;
-        }   
+        }
+
         .top-right {
             position: absolute;
             top: 20px;
@@ -99,32 +236,49 @@
         }
     </style>
 </head>
-    <body>
-        <div class="container">
-            <div class="top-right">
-                <a href="/" class="home-button">Home</a>
-            </div>
-            <h1>Plane Search</h1>
-            <form method="post" action="{% url 'displayplanes' %}">
-                {% csrf_token %}
-                
-                Date of Journey:<input type="date" id="date_of_journey" name="date_of_journey" required><br>
-            
-                <label for="source">Source:</label>
-                <input type="text" id="source" name="source" required oninput="capitalizeFirstLetter(this)">
-        
-            
-                <label for="destination">Destination:</label>
-                <input type="text" id="destination" name="destination" required oninput="capitalizeFirstLetter(this)">
-        
-            
-                <button type="submit">Search</button>
-            </form>
-            <script>
-                function capitalizeFirstLetter(input) {
-                    input.value = input.value.charAt(0).toUpperCase() + input.value.slice(1);
-                }
-            </script>
+
+<body>
+    <header class="header">
+        <a href="#" class="logo"><i class="fas fa-hiking"></i> KSS. </a>
+        <nav class="navbar">
+            <div id="nav-close" class="fas fa-times"></div>
+            <a href="/">Home</a>
+            <a href="{% url 'displayplanes' %}">Booking</a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'booking_history'%}">History</a>
+            <a href="{% url 'logout' %}">Logout</a>
+            {% else %}
+            <a href="{% url 'login' %}">Login/Sign Up</a>
+            {% endif %}
+        </nav>
+
+        <div class="icons">
+            <div id="menu-btn" class="fas fa-bars"></div>
+            <div id="search-btn" class="fas fa-search"></div>
         </div>
-    </body>
+
+    </header>
+    <div class="container">
+        <h1>Plane Search</h1>
+        <form method="POST" action="{% url 'displayplanes' %}">
+            {% csrf_token %}
+            <label for="date_of_journey">Date of Journey:</label>
+            <input type="date" id="date_of_journey" name="date_of_journey" required>
+
+            <label for="source">Source:</label>
+            <input type="text" id="source" name="source" required>
+
+            <label for="destination">Destination:</label>
+            <input type="text" id="destination" name="destination" required>
+
+            <button type="submit">Search</button>
+        </form>
+        <script>
+            function capitalizeFirstLetter(input) {
+                input.value = input.value.charAt(0).toUpperCase() + input.value.slice(1);
+            }
+        </script>
+    </div>
+</body>
+
 </html>

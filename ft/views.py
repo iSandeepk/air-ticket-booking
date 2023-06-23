@@ -2,9 +2,14 @@ from django.shortcuts import render,redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
-from .models import ft,Booking
-from django.contrib.auth import authenticate, login,logout
-from django.shortcuts import redirect, render
+from .models import ft,Booking,UserProfile
+from django.contrib.auth import authenticate,logout,login as auth_login
+from django.core.mail import send_mail
+from django.conf import settings
+import requests
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+
 
 def home(request):
     return render(request,'home.html')
@@ -26,25 +31,28 @@ def register(request):
             else:
                 user = User.objects.create_user(username=username,email=email,password=password)
                 user.save()
-                return render(request,'login.html')
+                user_profile = UserProfile(user=user, Firstname=Firstname)
+                user_profile.save()
+                return redirect('login')
         else:
             messages.info(request,'Passwords are not matching')
             return redirect('register')
     else:
         return render(request,'register.html')
 
-from django.contrib.auth import authenticate
-from django.contrib import messages
-from django.shortcuts import redirect, render
 
 def login(request):
+    session_timeout = getattr(settings, 'SESSION_COOKIE_AGE', 1800)  # Default: 30 minutes
+    last_activity = request.session.get('last_activity')
+    if last_activity is not None and (timezone.now() - last_activity).seconds > session_timeout:
+        auth.logout(request)
+        messages.info(request, 'You have been logged out due to inactivity.')
+        return redirect('login')
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-
-        # Check if username is an email
+        
         if '@' in username:
-            # User is trying to login with email
             try:
                 user = User.objects.get(email=username)
                 username = user.username
@@ -55,12 +63,17 @@ def login(request):
 
         if user is not None:
             if user.is_superuser:
-                # User is an admin
-                auth.login(request, user)
-                return redirect('/admin')
+                auth_login(request, user)
+                return redirect('/admin/')
             else:
-                # User is a customer
-                auth.login(request, user)
+                auth_login(request, user)
+                subject = 'Login Notification'
+                message = 'You have logged in to our website.'
+                from_email = settings.DEFAULT_FROM_EMAIL
+                to_email = user.email
+                
+                send_mail(subject, message, from_email, [to_email])
+                
                 return redirect('/')
         else:
             messages.error(request, 'Invalid credentials')
@@ -68,9 +81,38 @@ def login(request):
     else:
         return render(request, 'login.html')
 
+
 def logout(request):
     auth.logout(request)
     return redirect('home')  
+
+
+from django.shortcuts import render
+from .models import ft
+#display the data only if the seat availablity is grater then 0
+'''def displayplanes(request):
+    if request.method == 'POST':
+        date_of_journey = request.POST.get('date_of_journey')
+        source = request.POST.get('source')
+        destination = request.POST.get('destination')
+
+        fts = ft.objects.filter(
+            date_of_journey=date_of_journey,
+            source=source,
+            destination=destination,
+            seats_available__gt=0  # Filter flights with available seats
+        )
+
+        if fts.exists():
+            context = {
+                'fts': fts,
+            }
+            return render(request, 'displayplanes.html', context)
+        else:
+            messages.info(request, 'No planes found with available seats for the specified criteria.')
+            return redirect('input')
+
+    return render(request, 'input.html')'''
 
 def displayplanes(request):
     if request.method == 'POST':
@@ -83,14 +125,13 @@ def displayplanes(request):
             source=source,
             destination=destination
         )
-
         context = {
             'fts': fts,
         }
-
         return render(request, 'displayplanes.html', context)
-
     return render(request, 'input.html')
+
+
 
 
 def booking_view(request, ft_id):
@@ -103,8 +144,7 @@ def booking_view(request, ft_id):
             flight=ft
         )
     #return redirect('/')
-    return render(request, 'booking.html', {'flight': flight})
-
+    return render(request, 'home.html', {'flight': flight})
 
 def booking_history(request):
     user = request.user
@@ -112,3 +152,106 @@ def booking_history(request):
     return render(request, 'booking_history.html', {'bookings': bookings})
 
 
+'''def flight_fare_search(request):
+    if request.method == 'POST':
+        if request.method == 'POST':
+        source = request.POST.get('source')
+        destination = request.POST.get('destination')
+        date = request.POST.get('date')
+        adult = request.POST.get('adult')
+        type = request.POST.get('type')
+        
+        url = "https://flight-fare-search.p.rapidapi.com/v2/flight/"
+        querystring = {
+        "from": source,
+        "to": destination,
+        "date": date,
+        "adult": adult,
+        "type": type,
+        "currency": "USD"
+        }
+        headers = {
+        "X-RapidAPI-Key": "d3990f018emshcb4637527c98346p1a395ajsn9092289ff168",
+        "X-RapidAPI-Host": "flight-fare-search.p.rapidapi.com"
+        }
+        response = requests.get(url, headers=headers, params=querystring)
+        if response.status_code == 200:
+            data = response.json()
+            fares = data.get('results', [])
+
+            context = {'fares': fares}
+            return render(request, 'fare_results.html', context)
+        else:
+            error_message = f"Error occurred: {response.status_code}"
+            return render(request, 'error.html', {'error_message': error_message})
+    else:
+        return render(request, 'input.html')
+'''
+'''
+# trail done need to execute the main page
+def flight_fare_search(request):
+    if request.method == 'POST':
+        source = request.POST.get('source')
+        destination = request.POST.get('destination')
+        date = request.POST.get('date')
+        adult = request.POST.get('adult')
+        type = request.POST.get('type')
+
+    url = "https://flight-fare-search.p.rapidapi.com/v2/flight/"
+
+    querystring = {
+        "from": "VTZ",
+        "to": "HYD",
+        "date": "2023-06-22",
+        "adult": "1",
+        "type": "economy",
+        "currency": "USD"
+    }
+
+    headers = {
+        "X-RapidAPI-Key": "d3990f018emshcb4637527c98346p1a395ajsn9092289ff168",
+        "X-RapidAPI-Host": "flight-fare-search.p.rapidapi.com"
+    }
+
+    response = requests.get(url, headers=headers, params=querystring)
+
+    if response.status_code == 200:
+        data = response.json()
+        fares = data.get('results', [])
+
+        context = {'fares': fares}
+        return render(request, 'fare_results.html', context)
+    else:
+        error_message = f"Error occurred: {response.status_code}"
+        return render(request, 'error.html', {'error_message': error_message})
+
+def airport_depature(request):
+    if request.method == 'POST':
+        name = request.POST.get(name)
+        url = "https://flight-fare-search.p.rapidapi.com/v2/airport/departures"
+        querystring = {"airportCode":"LHR"}
+
+        headers = {
+            "X-RapidAPI-Key": "d3990f018emshcb4637527c98346p1a395ajsn9092289ff168",
+            "X-RapidAPI-Host": "flight-fare-search.p.rapidapi.com"
+        }
+        url = "https://skyscanner50.p.rapidapi.com/api/v1/searchFlights"
+
+        querystring = {"origin":"LOND","destination":"NYCA","date":"<REQUIRED>","adults":"1","currency":"USD","countryCode":"US","market":"en-US"}
+
+        headers = {
+            "X-RapidAPI-Key": "d3990f018emshcb4637527c98346p1a395ajsn9092289ff168",
+            "X-RapidAPI-Host": "skyscanner50.p.rapidapi.com"
+        }
+        response = requests.get(url, headers=headers, params=querystring)
+
+        if response.status_code == 200:
+            data = response.json()
+            depatures = data.get('results', [])
+
+            context = {'depatures': depatures}
+            return render(request, 'depature_results.html', context)
+        else:
+            error_message = f"Error occurred: {response.status_code}"
+            return render(request, 'error.html', {'error_message': error_message})
+'''

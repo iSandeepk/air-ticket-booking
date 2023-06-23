@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fare Results</title>
+</head>
+<body>
+    <h1>Fare Results</h1>
+    
+    {% if fares %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Flight Code</th>
+                    <th>Flight Name</th>
+                    <th>Stops</th>
+                    <th>Cabin Type</th>
+                    <th>Baggage Cabin Allowance</th>
+                    <th>Baggage Check-In Allowance</th>
+                    <th>Baggage Options Available</th>
+                    <th>Currency</th>
+                    <th>Departure Airport</th>
+                    <th>Arrival Airport</th>
+                    <th>Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fare in fares %}
+                    <tr>
+                        <td>{{ fare.flight_code }}</td>
+                        <td>{{ fare.flight_name }}</td>
+                        <td>{{ fare.stops }}</td>
+                        <td>{{ fare.cabinType }}</td>
+                        <td>{{ fare.baggage.cabin.allowance }} {{ fare.baggage.cabin.unit }}</td>
+                        <td>{{ fare.baggage.checkIn.allowance }} {{ fare.baggage.checkIn.unit }}</td>
+                        <td>{{ fare.baggage.baggageOptionsAvailable }}</td>
+                        <td>{{ fare.currency }}</td>
+                        <td>{{ fare.departureAirport.label }}</td>
+                        <td>{{ fare.arrivalAirport.label }}</td>
+                        <td>{{ fare.duration }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No flight fares found for the specified route.</p>
+    {% endif %}
+</body>
+</html>

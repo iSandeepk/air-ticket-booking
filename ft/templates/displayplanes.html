@@ -78,25 +78,81 @@
             font-style: italic;
             color: #999;
         }
+        .flight-info {
+            display: flex;
+        }
+
+        .info-left, .info-right {
+            width: 50%;
+        }
+        .info-right {
+            text-align: right;
+        }
+        .flight-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .details-left, .details-right {
+            width: 50%;
+        }
+
+        .book-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .book-btn:hover {
+            background-color: #45a049;
+        }
+        .details-right {
+            padding-top: 6%;
+            text-align: right;
+        }
+        .not-available-btn {
+            background-color: red;
+        }
+        .not-available-btn:hover {
+            background-color: red;
+        }
     </style>
     
 </head>
 <body>
     <div class="container">
         {% if fts %}
-            <h1>Flights for {{ fts.0.date_of_journey|date }} from {{ fts.0.source }} to {{ fts.0.destination }}:</h1>
+            <h1>Flights for {{ fts.0.date_of_journey|date }}:</h1>
             <ul>
                 {% for ft in fts %}
-                    <li>
-                        {{ ft }}
-                        <br>
-                        Seats Available: {{ ft.seats_available }}
-                        <br>
-                        Price: {{ ft.price }}
-                        <div class="book-button">
-                            <button class="book-btn" onclick="location.href='{% url 'booking' ft.id %}'">Book</button>
+                    <div class="flight-info">
+                        <div class="info-left">
+                            <h3>Source</h3>
+                            <p>{{ ft.source }}</p>
                         </div>
-                    </li>
+                        <div class="info-right">
+                            <h3>Destination</h3>
+                            <p>{{ ft.destination }}</p>
+                        </div>
+                    </div>
+                    <div class="flight-details">
+                        <div class="details-left">
+                            <p>Airline: {{ ft.company_name }}</p>
+                            <p>Seats Available: {{ ft.seats_available }}</p>
+                            <p>Price: {{ ft.price }}</p>
+                        </div>
+                        <div class="details-right">
+                            {% if ft.seats_available > 0 %}
+                                <button class="book-btn" onclick="location.href='{% url 'booking_view' ft.id %}'">Book</button>
+                            {% else %}
+                                <button class="not-available-btn" disabled>Not Available</button>
+                            {% endif %}
+                        </div>
+                    </div>
                 {% endfor %}
             </ul>
         {% else %}
