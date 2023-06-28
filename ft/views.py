@@ -4,11 +4,12 @@ from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from .models import ft,Booking,UserProfile
 from django.contrib.auth import authenticate,logout,login as auth_login
-from django.core.mail import send_mail
+from django.core.mail import send_mail,EmailMessage
 from django.conf import settings
 import requests
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+
 
 
 def home(request):
@@ -87,33 +88,6 @@ def logout(request):
     return redirect('home')  
 
 
-from django.shortcuts import render
-from .models import ft
-#display the data only if the seat availablity is grater then 0
-'''def displayplanes(request):
-    if request.method == 'POST':
-        date_of_journey = request.POST.get('date_of_journey')
-        source = request.POST.get('source')
-        destination = request.POST.get('destination')
-
-        fts = ft.objects.filter(
-            date_of_journey=date_of_journey,
-            source=source,
-            destination=destination,
-            seats_available__gt=0  # Filter flights with available seats
-        )
-
-        if fts.exists():
-            context = {
-                'fts': fts,
-            }
-            return render(request, 'displayplanes.html', context)
-        else:
-            messages.info(request, 'No planes found with available seats for the specified criteria.')
-            return redirect('input')
-
-    return render(request, 'input.html')'''
-
 def displayplanes(request):
     if request.method == 'POST':
         date_of_journey = request.POST.get('date_of_journey')
@@ -133,26 +107,47 @@ def displayplanes(request):
 
 
 
-
+from django.core.mail import EmailMessage
+@login_required
 def booking_view(request, ft_id):
     flight = get_object_or_404(ft, pk=ft_id)
+    success_message = None
+
     if request.method == 'POST':
         name = request.POST.get('name')
         email = request.POST.get('email')
         phone = request.POST.get('phone')
-        booking = Booking.objects.create(
-            flight=ft
-        )
-    #return redirect('/')
-    return render(request, 'home.html', {'flight': flight})
+        
+        # Send email to the user
+        auth_login(request, request.user)
+        subject = 'Booking Confirmation'
+        message = "hello"
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to_email = request.user.email
+
+        send_mail(subject, message, from_email, [to_email])
+        # Reduce the number of seats
+        if ft.seats_available > 0:
+            ft.seats_available -= 1
+            ft.save()
+
+            success_message = 'Booking confirmed successfully.'
+        else:
+            success_message = 'Sorry, no seats available for booking.'
+
+    return render(request, 'booking.html', {'flight': flight, 'success_message': success_message})
+
+
+
+
 
 def booking_history(request):
     user = request.user
     bookings = Booking.objects.filter(user=user)
     return render(request, 'booking_history.html', {'bookings': bookings})
 
-
-'''def flight_fare_search(request):
+'''
+def flight_fare_search(request):
     if request.method == 'POST':
         if request.method == 'POST':
         source = request.POST.get('source')
@@ -187,8 +182,9 @@ def booking_history(request):
     else:
         return render(request, 'input.html')
 '''
-'''
+
 # trail done need to execute the main page
+'''
 def flight_fare_search(request):
     if request.method == 'POST':
         source = request.POST.get('source')
@@ -223,8 +219,8 @@ def flight_fare_search(request):
         return render(request, 'fare_results.html', context)
     else:
         error_message = f"Error occurred: {response.status_code}"
-        return render(request, 'error.html', {'error_message': error_message})
-
+        return render(request, 'error.html', {'error_message': error_message})'''
+'''
 def airport_depature(request):
     if request.method == 'POST':
         name = request.POST.get(name)
